@@ -1,0 +1,25 @@
+# Ignore node modules
+node_modules/
+
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+
+# Ignore environment files
+.env
+
+# Ignore macOS system files
+.DS_Store
+
+
+run_in_terminal.py
+
+para_hacer
+
+.graph.py.swp
+
+user_data/sql_queries.sql
+user_data/user_needs.json
+
+
+*.pkl
