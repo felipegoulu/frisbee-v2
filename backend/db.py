@@ -91,9 +91,9 @@ def save_message(session_id, role, content, msg_id, carrito, node):
     with get_db_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO chat_messages (session_id, role, content, created_at, status, msg_id, carrito, node)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-            """, (session_id, role, content, datetime.now(), "en_proceso", msg_id, carrito, node))
+                INSERT INTO chat_messages (session_id, role, content, created_at,  msg_id, carrito, node)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (session_id, role, content, datetime.now(),  msg_id, carrito, node))
             conn.commit()
 
 # Database functions

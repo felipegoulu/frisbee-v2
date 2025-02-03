@@ -22,7 +22,7 @@ def get_text_message_input(recipient, text):
         }
     )
 
-def get_text_message_input_modify_cart(recipient, text, reply_text = "Modificar Carrito"):
+def get_text_message_input_modify_cart(recipient, text):
     return json.dumps(
         {
             "messaging_product": "whatsapp",
@@ -40,7 +40,14 @@ def get_text_message_input_modify_cart(recipient, text, reply_text = "Modificar 
                             "type": "reply",
                             "reply": {
                                 "id": "confirm_order",
-                                "title": reply_text
+                                "title": "Modificar Carrito"
+                            }
+                        },
+                                              {
+                            "type": "reply",
+                            "reply": {
+                                "id": "buy_cart",
+                                "title": "Comprar Carrito"
                             }
                         }
                     ]
@@ -74,7 +81,7 @@ def get_text_message_input_search_jumbo(recipient, text, reply_text = "Busca en 
             }
         })
 
-def send_message(data, wa_id, response_text, carrito, node):
+def send_message(data, wa_id, response_text, carrito, node, raw_response):
     ''' manda mensaje y tambien lo guarda en la base de datos'''
 
     headers = {
@@ -103,7 +110,13 @@ def send_message(data, wa_id, response_text, carrito, node):
         from backend.db import save_message
         carrito = json.dumps(carrito)
 
-        save_message(wa_id, "assistant", response_text, message_id, carrito, node)
+        print(f"raw response: {raw_response}")
+       
+        message_content = raw_response if raw_response else response_text
+
+        print(f"saving... {message_content}")
+
+        save_message(wa_id, "assistant", message_content, message_id, carrito, node)
         
         return message_id, response
 
@@ -162,21 +175,24 @@ def process_whatsapp_message(body):
         return 'duplicado'
     else:
         print("generating reponse...")
-        response, has_json, carrito, node = generate_response(message_body, wa_id,msg_id,name, parent_msg_id)
+        response, has_json, carrito, node, raw_response = generate_response(message_body, wa_id,msg_id,name, parent_msg_id)
         print("response generated")
         response = process_text_for_whatsapp(response)
         data = get_text_message_input(wa_id, response)
-        send_message(data, wa_id, response, carrito, node)
+        
+        send_message(data, wa_id, response, carrito, node, raw_response)
 
         if has_json:
             if node == "product_selection":
-                response = "Si quieres buscar los productos en Jumbo, apreta el siguiente botón."
+                response = "Si quieres buscar los productos en Jumbo..."
+                raw_response = ""
                 data = get_text_message_input_search_jumbo(wa_id, response) 
-                send_message(data, wa_id, response, carrito, node)
-            if node == "product_lookup":
-                response = "Si quieres modificar el carrito en Jumbo, apreta el siguiente botón."
+                send_message(data, wa_id, response, carrito, node,  raw_response)
+            if node =="change_cart" or node=="product_lookup":
+                response = "Para modificar o comprar el carrito en jumbo..."
+                raw_response = ""
                 data = get_text_message_input_modify_cart(wa_id, response) 
-                send_message(data, wa_id, response, carrito, node)
+                send_message(data, wa_id, response, carrito, node, raw_response)
 
 def is_valid_whatsapp_message(body):
     """

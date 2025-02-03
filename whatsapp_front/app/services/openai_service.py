@@ -51,7 +51,9 @@ def format_cart_to_bullets(cart_json):
 
 async def invoke_our_graph(state): 
     final_text = ""  # Accumulates the text from the model's response
+    raw_text = ""  # Accumulates the text from the model's response
     final_response = {"messages": []}
+    final_raw_response = {"messages": []}
     is_json_mode = False
     has_json = False
     carrito = {}
@@ -60,6 +62,8 @@ async def invoke_our_graph(state):
         kind = event["event"]  
         if kind == "on_chat_model_stream":
             chunk = event["data"]["chunk"].content  
+            
+            raw_text += chunk
             # Detectar inicio del bloque JSON
             if "``" in chunk and not is_json_mode:
                 is_json_mode = True
@@ -109,12 +113,18 @@ async def invoke_our_graph(state):
                 final_text = final_text.replace("`", "")
                 final_response["messages"] = final_text
                 node = "product_selection"
+                final_raw_response["messages"] = raw_text # esto es para guardar el msje con el formato json porque quiero que el input de msjes anteriores esten en formato json.
 
-            if event['name'] == 'product_lookup':
+            if event['name'] == 'final_product_lookup':
                 final_response["messages"] = final_text
                 node = "product_lookup"
+            
+            if event['name'] == 'change_cart':
+                final_response["messages"] = final_text
+                node = "change_cart"
 
-    return final_response, has_json, carrito, node
+    return final_response, has_json, carrito, node, final_raw_response
+
 
 def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
     state_messages = []
@@ -128,12 +138,20 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
         node = "change_cart"
         carrito = get_cart_by_msg_id(parent_msg_id)  
         save_message(wa_id, "user", message_body, msg_id, json.dumps(carrito), node)
-        return "Que quieres modificar?", False, carrito, node
+        return "Que quieres modificar?", False, carrito, node, ""
         
+    elif message_body == "Comprar Carrito":
+        node = "buy_cart"
+        carrito = get_cart_by_msg_id(parent_msg_id)  
+        save_message(wa_id, "user", message_body, msg_id, json.dumps(carrito), node)
+        carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
+        total = carrito_dict["total"]
+        cart_link = "link.mercadopago.com.ar/frisbee"  
+        response = f"Aquí está el link para comprar tu carrito: {cart_link}\nEl valor total a pagar es {total}"
+        return response, False, carrito, node, ""
     else:
         result = get_last_message_and_cart(wa_id)
-        print(f"result content : {result['content']}")
-        if result['content'] == 'Que quieres modificar?':
+        if result and result['content'] == 'Que quieres modificar?':
             node = "change_cart"
             carrito = result['carrito']
         else:
@@ -159,9 +177,10 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
     }
     print(f"generate_resposne : state: {state}")
 
-    response, has_json, carrito, node = asyncio.run(invoke_our_graph(state))
+    # if nodo es producto lookup hacer invoke_graph_product_lookup
+    response, has_json, carrito, node, raw_response = asyncio.run(invoke_our_graph(state))
     new_message = response["messages"]
-    
+    raw_response = raw_response["messages"] 
     print(f"new_message: {new_message}")
 
-    return new_message, has_json, carrito, node 
+    return new_message, has_json, carrito, node, raw_response 

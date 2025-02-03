@@ -33,7 +33,7 @@ async def load_bm25_model():
     if environment == 'server':
         base_path = "/home/ubuntu/frizbee"
     else:
-        base_path = "/Users/felipegoulu/projects/activos/jumbo_ai"
+        base_path = "/Users/felipegoulu/projects/activos/frizbee-v2"
 
     model_path = os.path.join(base_path, f"backend/tools/bm25_model_{codigo}.pkl")
     with open(model_path, 'rb') as f:
@@ -55,7 +55,7 @@ async def product_lookup_tool(query):
 
     result = await asyncio.to_thread(
         pinecone_index.query,
-        top_k = 20,
+        top_k =5 ,
         vector = dense,
         sparse_vector = sparse,
         include_metadata = True
@@ -67,9 +67,11 @@ async def product_lookup_tool(query):
         final_result.append({
             'nombre_producto': result_matches[i]['metadata']['product_name'],
             'price_with_discount': result_matches[i]['metadata']['price_with_discount'],
+            'original_price': result_matches[i]['metadata']['original_price'],
             'discount': result_matches[i]['metadata']['discount_percentage'],
-            'link_producto': result_matches[i]['metadata']['link'],
-            'link_imagen': result_matches[i]['metadata']['image'],
+            'regular_price': result_matches[i]['metadata']['regular_price'],
+            'link_producto': result_matches[i]['metadata']['link']
+#            'link_imagen': result_matches[i]['metadata']['image'],
         })
             
     # Convert the list of dictionaries to a JSON string
