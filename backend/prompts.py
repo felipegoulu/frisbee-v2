@@ -61,12 +61,16 @@ def get_final_product_lookup_prompt(user_id,name, carrito):
          - ID: {user_id}
          - Nombre: {name}
 
-         Los productos a buscar en la base de datos son:
+         Los productos a obtener de jumbo son:
 
          {carrito}
 
          Proceso Obligatorio:
-         2. Añadir la mejor opcion al carrito
+         1. Añadir la mejor opcion al carrito
+         2. Para cada producto añadido, calcular el precio segun la cantidad.
+         Ejemplos de calculo: 
+            - si en el carrito decia 0.5 kg de jamon, pero encontraste Jamón Crudo Serrano España 100 Gr. Debes cambiar la cantidad a 100 gr porque no puede obtener 0.5 kg del jamon porque viene en un paquete de 100 gramos
+            - si en el carrito decia 0.5 kg de zanahoria, y enconrtaste zanahoria por kg, solamente puedes comprar por kg. Debes cambiar la cantidad a 1 kg.
          3. Una vez que el carrito está armado, calcular el precio total, sumando el precio de cada producto seleccionado.
 
          Reglas:
