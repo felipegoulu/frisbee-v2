@@ -77,7 +77,7 @@ def get_last_message_and_cart(session_id):
     with get_db_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("""
-                SELECT content, carrito 
+                SELECT content, carrito, node 
                 FROM chat_messages 
                 WHERE session_id = %s
                 ORDER BY id DESC

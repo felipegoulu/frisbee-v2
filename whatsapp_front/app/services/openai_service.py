@@ -141,19 +141,26 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
         return "Que quieres modificar?", False, carrito, node, ""
         
     elif message_body == "Comprar Carrito":
-        node = "buy_cart"
+        node = "add_location"
         carrito = get_cart_by_msg_id(parent_msg_id)  
         save_message(wa_id, "user", message_body, msg_id, json.dumps(carrito), node)
         carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
         total = carrito_dict["total"]
-        cart_link = "link.mercadopago.com.ar/frisbee"  
-        response = f"Aquí está el link para comprar tu carrito: {cart_link}\nEl valor total a pagar es {total}"
+        response = f"Para comprar tu carrito, primero debes escribir tu dirección. A continuación escribe tu dirección:"
         return response, False, carrito, node, ""
     else:
         result = get_last_message_and_cart(wa_id)
         if result and result['content'] == 'Que quieres modificar?':
             node = "change_cart"
             carrito = result['carrito']
+        if result and result['node'] == 'add_location':
+            node = 'buy_cart'
+            carrito = result['carrito']
+            carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
+            total = carrito_dict["total"]
+            cart_link = "link.mercadopago.com.ar/frisbee"  
+            response = f"Aquí está el link para comprar tu carrito: {cart_link}\nEl valor total a pagar es {total}"
+            return response, False, carrito, node, "" 
         else:
             node = "product_selection"
             carrito = {}
