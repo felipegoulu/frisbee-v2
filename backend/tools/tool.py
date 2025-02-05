@@ -31,7 +31,7 @@ import pickle
 async def load_bm25_model():
     environment = os.environ.get('ENVIRONMENT', 'local')
     if environment == 'server':
-        base_path = "/home/ubuntu/frizbee"
+        base_path = "/home/ubuntu/frisbee-v2"
     else:
         base_path = "/Users/felipegoulu/projects/activos/frizbee-v2"
 
