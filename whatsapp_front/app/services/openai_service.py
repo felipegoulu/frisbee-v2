@@ -153,7 +153,7 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
         if result and result['content'] == 'Que quieres modificar?':
             node = "change_cart"
             carrito = result['carrito']
-        if result and result['node'] == 'add_location':
+        elif result and result['node'] == 'add_location':
             node = 'buy_cart'
             carrito = result['carrito']
             carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
