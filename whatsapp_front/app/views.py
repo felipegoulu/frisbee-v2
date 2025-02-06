@@ -39,9 +39,15 @@ def handle_message():
         logging.info("Received a WhatsApp status update.")
         return jsonify({"status": "ok"}), 200
 
-    if body["type"] == "payment":    
-        payment_id =  body["data"]['id']
-        print(f"pago recibido: {payment_id}")
+    print(f"body: {body}")
+
+    if body.get("type")== "payment":    
+        payment_id =  body.get("data",{}).get('id')
+        if payment_id:
+            print(f"pago recibido: {payment_id}")
+        else:
+            print("Pago recibido pero sin ID")
+
         return jsonify({"status": "ok"}), 200
 
     try:
