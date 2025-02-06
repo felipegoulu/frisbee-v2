@@ -9,6 +9,7 @@ load_dotenv()
 # Obtener el token desde las variables de entorno
 PROD_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
 
+print(PROD_ACCESS_TOKEN)
 
 class PaymentService:
     def __init__(self, access_token: str):
