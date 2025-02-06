@@ -78,7 +78,7 @@ class WhatsAppBot:
                 amount=amount,
                 description=f"Pago a través de Frisbee"
             )
-            return f"Aquí está tu link de pago: {payment_link}"
+            return payment_link
   
         except ValueError:
             return "Por favor, envía el monto en formato correcto."
