@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-access_token=os.get_env("PROD_ACCESS_TOKEN")
+access_token=os.environ.get("PROD_ACCESS_TOKEN")
 
 def verify_payment(payment_id):
     sdk = mercadopago.SDK(access_token)
