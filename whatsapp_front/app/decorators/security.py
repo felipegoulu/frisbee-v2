@@ -32,8 +32,9 @@ def signature_required(f):
     def decorated_function(*args, **kwargs):
         # Check if it's a Mercado Pago webhook
         if request.args.get('topic') == 'merchant_order':
-            return validate_signature(request.data.decode("utf-8"), '', source='mercadopago')
-
+            if validate_signature(request.data.decode("utf-8"), '', source='mercadopago'):
+                return f(*args, **kwargs)
+            return jsonify({"status": "error", "message": "Invalid signature"}), 403
         # WhatsApp signature verification
         signature = request.headers.get("X-Hub-Signature-256", "")[7:]  # Removing 'sha256='
         if not validate_signature(request.data.decode("utf-8"), signature, source='whatsapp'):
