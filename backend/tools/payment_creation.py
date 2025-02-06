@@ -115,7 +115,7 @@ async def create_payment(amount: str) -> str:
     load_dotenv()
 
     # Obtener el token desde las variables de entorno
-    PROD_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
+    PROD_ACCESS_TOKEN = os.environ.get('PROD_ACCESS_TOKEN')
 
     if not PROD_ACCESS_TOKEN:
         raise ValueError("MP_ACCESS_TOKEN no está configurado en las variables de entorno")
