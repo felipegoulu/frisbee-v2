@@ -3,13 +3,7 @@ from dotenv import load_dotenv
 import os
 import asyncio 
 
-# Cargar variables de entorno desde .env
-load_dotenv()
 
-# Obtener el token desde las variables de entorno
-PROD_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
-
-print(PROD_ACCESS_TOKEN)
 
 class PaymentService:
     def __init__(self, access_token: str):
@@ -117,6 +111,15 @@ async def create_payment(amount: str) -> str:
     Returns:
         str: URL del link de pago o mensaje de error
     """
+    # Cargar variables de entorno desde .env
+    load_dotenv()
+
+    # Obtener el token desde las variables de entorno
+    PROD_ACCESS_TOKEN = os.getenv('MP_ACCESS_TOKEN')
+
+    if not PROD_ACCESS_TOKEN:
+        raise ValueError("MP_ACCESS_TOKEN no está configurado en las variables de entorno")
+
     bot = WhatsAppBot(PROD_ACCESS_TOKEN)
     return await bot.handle_message(amount)
 
