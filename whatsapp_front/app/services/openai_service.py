@@ -162,7 +162,7 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
 
             total = total.replace('$', '').replace(' ', '').replace('.', '')
 
-            cart_link = asyncio.run(create_payment(total))
+            cart_link = asyncio.run(create_payment(total, wa_id))
             response = f"Aquí está tu link de pago: {cart_link}."
             return response, False, carrito, node, "" 
         else:

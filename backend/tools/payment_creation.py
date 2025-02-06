@@ -18,7 +18,8 @@ class PaymentService:
     async def create_payment_link(
         self, 
         amount: float, 
-        description: str
+        description: str,
+        user_id: str
     ) -> str:
         """
         Crea un link de pago de Mercado Pago
@@ -44,6 +45,7 @@ class PaymentService:
             },
             "auto_return": "approved",
             "notification_url": "https://specially-elegant-skunk.ngrok-free.app/webhook",
+            "external_reference":  user_id
         }
 
       
@@ -62,7 +64,7 @@ class WhatsAppBot:
     def __init__(self, mp_access_token: str):
         self.payment_service = PaymentService(mp_access_token)
 
-    async def handle_message(self, amount: str) -> str:
+    async def handle_message(self, amount: str, user_id: str) -> str:
         """
         Maneja los mensajes recibidos en el bot
         
@@ -76,7 +78,8 @@ class WhatsAppBot:
             amount = float(amount)
             payment_link = await self.payment_service.create_payment_link(
                 amount=amount,
-                description=f"Pago a través de Frisbee"
+                description=f"Pago a través de Frisbee",
+                user_id=user_id
             )
             return payment_link
   
@@ -86,22 +89,8 @@ class WhatsAppBot:
             return f"Lo siento, hubo un error al procesar tu solicitud: {str(e)}"
 
 
-#if __name__ == "__main__":
-#    PROD_ACCESS_TOKEN = "APP_USR-2292321468702285-012818-6a6136985805585549a92549b07b87f9-303417316"
-    
-    # Inicializa el bot
-#    bot = WhatsAppBot(PROD_ACCESS_TOKEN)
 
-#    async def test_message():
-#        response = await bot.handle_message("10")
-#        print(response)
-    
-#    import asyncio 
-
-#    asyncio.run(test_message())
-
-
-async def create_payment(amount: str) -> str:
+async def create_payment(amount: str, user_id) -> str:
     """
     Crea un link de pago usando el bot de WhatsApp
     
@@ -121,7 +110,7 @@ async def create_payment(amount: str) -> str:
         raise ValueError("MP_ACCESS_TOKEN no está configurado en las variables de entorno")
 
     bot = WhatsAppBot(PROD_ACCESS_TOKEN)
-    return await bot.handle_message(amount)
+    return await bot.handle_message(amount, user_id)
 
 #response = asyncio.run(create_payment("10"))
 #print(response)

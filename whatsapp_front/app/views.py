@@ -1,3 +1,4 @@
+import os
 import logging
 import json
 
@@ -8,9 +9,27 @@ from .utils.whatsapp_utils import (
     process_whatsapp_message,
     is_valid_whatsapp_message,
 )
+import mercadopago
 
 webhook_blueprint = Blueprint("webhook", __name__)
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+access_token=os.get_env("PROD_ACCESS_TOKEN")
+
+def verify_payment(payment_id):
+    sdk = mercadopago.SDK(access_token)
+
+    try:
+        response = sdk.payment().get(payment_id)
+        payment = response["response"]
+        return payment
+    
+    except Exception as e:
+        print(f"Error al verificar el pago: {str(e)}")
+        raise e
 
 def handle_message():
     """
@@ -52,8 +71,22 @@ def handle_message():
 
     # Handle both types of Mercado Pago webhooks
     if request.args.get('topic') == 'merchant_order' or request.args.get('topic') == 'payment' or request.args.get('type') == 'payment':
-        #if payment_id:
-        #    logging.info(f"Processing payment webhook for payment_id: {payment_id}")
+        if request.args.get('topic') == 'payment':
+            payment_id = body['resource']
+            payment = verify_payment(payment_id)
+
+            print(payment["status"]) 
+            if payment["status"] == "approved":
+                status = payment["status"]
+                monto = f"{payment['transaction_amount']} {payment['currency_id']}"
+                fecha_creacion = payment['date_created']
+                metodo_de_pago = payment['payment_method_id'] 
+                # id_usuario = 
+                # insertar pago a tabla payments. Si el id de pago ya existe salir del loop y no insertar nada.
+                # tambien necesito obtener el id del usuario (nro de telefono) y ponerlo en la tabla payments.
+                # la tabla payments deberia tener una columna llamada estado de delivery que en ppio está en nulo y yo la voy modificando.
+                # mandar mensaje a cliente diciendo que ya nos llego el pago
+
         return jsonify({"status": "ok"}), 200
 
     try:
