@@ -76,7 +76,7 @@ class WhatsAppBot:
             amount = float(amount)
             payment_link = await self.payment_service.create_payment_link(
                 amount=amount,
-                description=f"Pago de ${amount} a través de Frisbee"
+                description=f"Pago a través de Frisbee"
             )
             return f"Aquí está tu link de pago: {payment_link}"
   
