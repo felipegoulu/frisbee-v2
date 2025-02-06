@@ -7,6 +7,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from backend.graph import graph_runnable
 
 from backend.db import load_chat_history,  save_message, get_cart_by_msg_id, get_last_message_and_cart
+from backend.tools.payment_creation import  create_payment
 
 def format_cart_to_bullets(cart_json):
     """
@@ -158,7 +159,7 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
             carrito = result['carrito']
             carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
             total = carrito_dict["total"]
-            cart_link = "link.mercadopago.com.ar/frisbee"  
+            cart_link = asyncio.run(create_payment(total))
             response = f"Aquí está el link para comprar tu carrito: {cart_link}\nEl valor total a pagar es {total}"
             return response, False, carrito, node, "" 
         else:

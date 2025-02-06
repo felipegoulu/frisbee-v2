@@ -39,6 +39,11 @@ def handle_message():
         logging.info("Received a WhatsApp status update.")
         return jsonify({"status": "ok"}), 200
 
+    if body["type"] == "payment":    
+        payment_id =  body["data"]['id']
+        print(f"pago recibido: {payment_id}")
+        return jsonify({"status": "ok"}), 200
+
     try:
         if is_valid_whatsapp_message(body):
             process_whatsapp_message(body)
