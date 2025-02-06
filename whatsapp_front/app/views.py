@@ -41,13 +41,19 @@ def handle_message():
 
     print(f"body: {body}")
 
-    if body.get("type")== "payment":    
-        payment_id =  body.get("data",{}).get('id')
-        if payment_id:
-            print(f"pago recibido: {payment_id}")
-        else:
-            print("Pago recibido pero sin ID")
+    #if body.get("type")== "payment":    
+    #    payment_id =  body.get("data",{}).get('id')
+    #    if payment_id:
+    #        print(f"pago recibido: {payment_id}")
+    #    else:
+    #        print("Pago recibido pero sin ID")
 
+    #    return jsonify({"status": "ok"}), 200
+
+    # Handle both types of Mercado Pago webhooks
+    if request.args.get('topic') == 'merchant_order' or request.args.get('topic') == 'payment' or request.args.get('type') == 'payment':
+        #if payment_id:
+        #    logging.info(f"Processing payment webhook for payment_id: {payment_id}")
         return jsonify({"status": "ok"}), 200
 
     try:
