@@ -25,6 +25,14 @@ def verify_payment(payment_id):
     try:
         response = sdk.payment().get(payment_id)
         payment = response["response"]
+
+      # Obtener el external_reference
+        external_reference = payment.get("external_reference")
+        logging.info(f"External reference del pago: {external_reference}")
+        print(f"External reference del pago: {external_reference}")
+        
+
+
         return payment
     
     except Exception as e:
