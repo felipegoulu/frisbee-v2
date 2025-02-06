@@ -159,6 +159,9 @@ def generate_response(message_body, wa_id, msg_id,name, parent_msg_id):
             carrito = result['carrito']
             carrito_dict = json.loads(carrito)  if isinstance(carrito, str) else carrito
             total = carrito_dict["total"]
+
+            total = total.replace('$', '').replace(' ', '').replace('.', '')
+
             cart_link = asyncio.run(create_payment(total))
             response = f"Aquí está el link para comprar tu carrito: {cart_link}\nEl valor total a pagar es {total}"
             return response, False, carrito, node, "" 
