@@ -31,7 +31,7 @@ def signature_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         # Check if it's a Mercado Pago webhook
-        if request.args.get('topic') == 'merchant_order':
+        if request.args.get('topic') == 'merchant_order' or request.args.get('type') == 'payment':
             if validate_signature(request.data.decode("utf-8"), '', source='mercadopago'):
                 return f(*args, **kwargs)
             return jsonify({"status": "error", "message": "Invalid signature"}), 403
