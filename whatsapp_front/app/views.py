@@ -28,12 +28,10 @@ def verify_payment(payment_id):
 
       # Obtener el external_reference
         external_reference = payment.get("external_reference")
-        logging.info(f"External reference del pago: {external_reference}")
-        print(f"External reference del pago: {external_reference}")
         
 
 
-        return payment
+        return payment, external_reference
     
     except Exception as e:
         print(f"Error al verificar el pago: {str(e)}")
@@ -81,20 +79,28 @@ def handle_message():
     if request.args.get('topic') == 'merchant_order' or request.args.get('topic') == 'payment' or request.args.get('type') == 'payment':
         if request.args.get('topic') == 'payment':
             payment_id = body['resource']
-            payment = verify_payment(payment_id)
+            payment, user_id = verify_payment(payment_id)
 
             print(payment["status"]) 
             if payment["status"] == "approved":
+                user_id = user_id
                 status = payment["status"]
                 monto = f"{payment['transaction_amount']} {payment['currency_id']}"
                 fecha_creacion = payment['date_created']
                 metodo_de_pago = payment['payment_method_id'] 
-                # id_usuario = 
-                # insertar pago a tabla payments. Si el id de pago ya existe salir del loop y no insertar nada.
-                # tambien necesito obtener el id del usuario (nro de telefono) y ponerlo en la tabla payments.
-                # la tabla payments deberia tener una columna llamada estado de delivery que en ppio está en nulo y yo la voy modificando.
-                # mandar mensaje a cliente diciendo que ya nos llego el pago
+                
+                from backend.db import save_payment
+                # guardo payment solo si payment_id no existe en la tabla
+                response = save_payment(payment_id, status, monto, fecha_creacion, metodo_de_pago, user_id)
+                if response == "message saved":
+                    message = "Tu pago se ha acreditado, tu pedido se está realizando. En minutos te enviaremos el dia y horario de llegada del delivery."
 
+                    from whatsapp_front.app.utils.whatsapp_utils import process_text_for_whatsapp, get_text_message_input, send_message
+                    
+                    response = process_text_for_whatsapp(message)
+                    data = get_text_message_input(user_id, response)
+                    send_message(data, user_id, response, carrito='', node='product_selection', raw_response='')
+        
         return jsonify({"status": "ok"}), 200
 
     try:

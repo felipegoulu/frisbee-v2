@@ -132,4 +132,31 @@ def check_duplicated(session_id, msg_id):
         st.error(f"Error loading chat history: {e}")
         return []
 
+def save_payment(payment_id, status, monto, fecha_creacion, metodo_de_pago, user_id):
+    """
+    Inserta un nuevo pago en la tabla payments
+    """
+    try:
+        with get_db_connection() as conn:
+            with conn.cursor() as cur:
+                
+                cur.execute("""
+                    SELECT payment_id FROM payments
+                    WHERE payment_id = %s
+                """, (payment_id,))
 
+                if cur.fetchone() is not None:
+                    # Ya existe un pago con este payment_id
+                    return None
+
+                cur.execute("""
+                    INSERT INTO payments (payment_id, payment_status, monto, fecha_creacion, metodo_de_pago, user_id, delivery_status)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (payment_id, status, monto, fecha_creacion, metodo_de_pago, user_id, "pending"))
+
+                return "message saved"
+                
+        
+    except Exception as e:
+        print(f"Error al guardar el pago: {e}")  # Consider using proper logging
+        return None
