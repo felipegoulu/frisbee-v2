@@ -82,7 +82,10 @@ def handle_message():
             payment, user_id = verify_payment(payment_id)
 
             print(payment["status"]) 
+            print(f"Status type: {type(payment['status'])}, Value: '{payment['status']}'")
+
             if payment["status"] == "approved":
+                print("hola")
                 user_id = user_id
                 status = payment["status"]
                 monto = f"{payment['transaction_amount']} {payment['currency_id']}"
@@ -92,6 +95,7 @@ def handle_message():
                 from backend.db import save_payment
                 # guardo payment solo si payment_id no existe en la tabla
                 response = save_payment(payment_id, status, monto, fecha_creacion, metodo_de_pago, user_id)
+                print(f"response: {response}")
                 if response == "message saved":
                     message = "Tu pago se ha acreditado, tu pedido se está realizando. En minutos te enviaremos el dia y horario de llegada del delivery."
 
